@@ -1,0 +1,13 @@
+name: dji_caltopo_bridge_env
+
+channels:
+  - defaults
+  - conda-forge
+
+dependencies:
+  - python=3.9          # Specify the Python version you want
+  - pip                 # Explicitly add pip as a conda dependency for consistency
+  - paho-mqtt           # MQTT client library
+  - requests            # HTTP requests library
+  - python-dotenv       # For reading .env files 
+  
