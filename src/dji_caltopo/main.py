@@ -22,34 +22,47 @@ DEFAULT_DELAY = 1.0        # Used if USE_REAL_TIMING is False
 TIME_MULTIPLIER = 0.1     # e.g. 0.5 = 2x faster, 2.0 = 2x slower
 MQTT_BROKER_HOST = os.getenv("MQTT_BROKER_HOST")
 MQTT_BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT"))
-MQTT_TOPIC_TO_SUBSCRIBE = os.getenv("MQTT_TOPIC_TO_SUBSCRIBE")
 CALTOPO_CONNECT_KEY = os.getenv("CALTOPO_CONNECT_KEY")
-DRONES_SN_NAME = os.getenv("DRONES_SN_NAME")
+DRONES_SN_LIST= os.getenv("DRONES_SN_LIST").split(",")
+DRONES_NAMES_LIST= os.getenv("DRONES_NAMES_LIST").split(",")
+assert len(DRONES_SN_LIST) == len(DRONES_NAMES_LIST), "Drones SN and Names lists must have the same length."
+assert len(DRONES_SN_LIST) > 0, "Drones SN list cannot be empty."
+MQTT_TOPIC_TO_SUBSCRIBE = [f"thing/product/{sn.strip()}/osd" for sn in DRONES_SN_LIST]
+
 
 sn_to_drone_name = {}
-for item in DRONES_SN_NAME.split(","):
-    sn, name = item.split(":")
-    sn_to_drone_name[sn.strip()] = name.strip()
+for i in range(len(DRONES_SN_LIST)):
+    sn = DRONES_SN_LIST[i].strip()
+    name = DRONES_NAMES_LIST[i].strip()
+    assert sn not in sn_to_drone_name, f"Duplicate SN found: {sn}"
+    assert name, "Drone name cannot be empty."
+    sn_to_drone_name[sn] = name
+
+
 print(sn_to_drone_name)
 
 
 def handle_drone_message(message):
-    if message["data"]["sn"] in DRONES_SN_NAME:
-        drone_name = DRONES_SN_NAME[message["data"]["sn"]]
-        host = message["data"].get("host", {})
-        longitude = host.get("longitude")
-        latitude = host.get("latitude")
-        print(drone_name, " Longitude:", longitude, "Latitude:", latitude)
-        send_location_to_caltopo(CALTOPO_CONNECT_KEY, drone_name, latitude, longitude)
+    
+    assert message["sn"] in sn_to_drone_name
+    drone_name = sn_to_drone_name[message["sn"]]
+    latitude = message["data"]["latitude"]
+    longitude = message["data"]["longitude"]
+    print(drone_name, " Longitude:", longitude, "Latitude:", latitude)
+    send_location_to_caltopo(CALTOPO_CONNECT_KEY, drone_name, latitude, longitude)
 
 
 # --- Message Consumer ---
 def print_messages_from_queue(queue):
     while True:
         message = queue.get()
-        #print("\n📥 New Message from Queue:")
-        if "sn" in message.get("data", {}):
+        if "sn" not in message:
+            print("⚠️ Skipped message: missing 'sn' key in top-level")
+        elif message["sn"] in sn_to_drone_name:
             handle_drone_message(message)
+        else:
+            print(f"⚠️ Skipped message: unrecognized sn '{message['sn']}'")
+
         queue.task_done()
 
 # --- Main Entry Point ---
