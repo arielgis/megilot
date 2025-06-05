@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 
 logger = logging.getLogger(__name__)
 
-def start_mqtt_listener(queue, host, port, topic):
+def start_mqtt_listener(queue, host, port, topic_list):
     """
     Connects to MQTT broker and listens for messages.
     Every valid JSON message is pushed into the queue.
@@ -13,8 +13,9 @@ def start_mqtt_listener(queue, host, port, topic):
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
             logger.info(f"Connected to MQTT Broker: {host}:{port}")
-            client.subscribe(topic)
-            logger.info(f"Subscribed to topic: {topic}")
+            for topic in topic_list:
+                client.subscribe(topic)
+                logger.info(f"Subscribed to topic: {topic}")
         else:
             logger.error(f"Failed to connect to MQTT Broker, rc={rc}")
 
@@ -22,6 +23,7 @@ def start_mqtt_listener(queue, host, port, topic):
         try:
             payload_str = msg.payload.decode('utf-8')
             data = json.loads(payload_str)
+            print(data["sn"])
             queue.put(data)
             logger.info(f"Queued message from topic '{msg.topic}'")
         except json.JSONDecodeError:
