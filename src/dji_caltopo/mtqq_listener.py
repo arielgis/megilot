@@ -23,7 +23,7 @@ def start_mqtt_listener(queue, host, port, topic_list):
         try:
             payload_str = msg.payload.decode('utf-8')
             data = json.loads(payload_str)
-            print(data["sn"])
+            #print(data["sn"])
             queue.put(data)
             logger.info(f"Queued message from topic '{msg.topic}'")
         except json.JSONDecodeError:
