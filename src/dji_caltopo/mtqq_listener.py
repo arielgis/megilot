@@ -25,7 +25,7 @@ def start_mqtt_listener(queue, host, port, topic_list):
             data = json.loads(payload_str)
             #print(data["sn"])
             queue.put(data)
-            logger.info(f"Queued message from topic '{msg.topic}'")
+            logger.info(f"Incoming message from topic '{msg.topic}'")
         except json.JSONDecodeError:
             logger.warning("Received invalid JSON message")
         except Exception as e:
