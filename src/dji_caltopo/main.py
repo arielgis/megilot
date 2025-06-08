@@ -48,7 +48,7 @@ def handle_drone_message(message, sn_to_drone_name):
     try:
         result = extract_drone_info(message, sn_to_drone_name, telegram)
         if result is None:
-                      
+            telegram.send_mqtt_queued("Invalid drone message format or missing data.")            
             return
 
         drone_name, longitude, latitude = result
