@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 # --- Configuration ---
 load_dotenv()
-USE_REALTIME = True
 DEFAULT_DELAY = 1.0        # Used if USE_REAL_TIMING is False
 TIME_MULTIPLIER = 0.1      # e.g. 0.5 = 2x faster, 2.0 = 2x slower
 MQTT_BROKER_HOST = os.getenv("MQTT_BROKER_HOST")
@@ -42,6 +41,18 @@ sn_to_drone_name = extract_drone_name_mapping(DRONES_SN_LIST, DRONES_NAMES_LIST)
 print(sn_to_drone_name)
 
 telegram = TelegramMessageManager(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
+
+
+# --- Dynamic MQTT topic control ---
+def subscribe_to_drone(sn):
+    topic = f"thing/product/{sn}/osd"
+    mqtt_client.subscribe(topic)
+    logger.info(f"✅ Subscribed to topic: {topic}")
+
+def unsubscribe_from_drone(sn):
+    topic = f"thing/product/{sn}/osd"
+    mqtt_client.unsubscribe(topic)
+    logger.info(f"🛑 Unsubscribed from topic: {topic}")
 
 
 def handle_drone_message(message, sn_to_drone_name):
@@ -80,31 +91,15 @@ if __name__ == "__main__":
     consumer_thread = threading.Thread(target=print_messages_from_queue, args=(q,), daemon=True)
     consumer_thread.start()
 
-    if USE_REALTIME:
-        logger.info("Running in REAL-TIME mode (MQTT listener)")
-        mqtt_thread = threading.Thread(
-            target=start_mqtt_listener,
-            args=(q, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_TO_SUBSCRIBE),
-            daemon=True
-        )
-        mqtt_thread.start()
-        telegram.send_startup()
-        try:
-            while True:
-                 time.sleep(10)   # Keep main thread alive
-                 telegram.send_heartbeat()
-        except KeyboardInterrupt:
-            logger.info("Stopped by user.")
+    
+    logger.info("Running MQTT listener")
+    mqtt_client = start_mqtt_listener(q, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_TO_SUBSCRIBE)
+
+    telegram.send_startup()
+    try:
+        while True:
+            time.sleep(10)   # Keep main thread alive
+            telegram.send_heartbeat()
+    except KeyboardInterrupt:
+        logger.info("Stopped by user.")
         
-    else:
-        logger.info("Running in OFFLINE mode (reading from folder)")
-        simulate_offline_messages(
-            folder_path=OFFLINE_FOLDER,
-            queue=q,
-            use_real_timestamps=USE_REAL_TIMING,
-            default_delay=DEFAULT_DELAY,
-            time_multiplier=TIME_MULTIPLIER
-        )
-        logger.info("Simulation complete. Waiting for queue to finish...")
-        q.join()
-        logger.info("All messages processed. Exiting.")
