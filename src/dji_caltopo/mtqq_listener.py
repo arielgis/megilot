@@ -38,6 +38,7 @@ def start_mqtt_listener(queue, host, port, topic_list):
     try:
         client.connect(host, port, 60)
         logger.info("Starting MQTT listener loop...")
-        client.loop_forever()  # Blocking call, should be run in a thread
+        client.loop_start()  
     except Exception as e:
         logger.error(f"MQTT connection or loop failed: {e}")
+    return client
