@@ -3,6 +3,19 @@
 This project ingests drone telemetry data either in **real-time** via an MQTT broker or from **offline simulation logs**, extracts GPS coordinates, and sends location updates to the [CalTopo API](https://caltopo.com/) for live tracking or analysis.
 
 ## Features
+Instructions: 
+All the instructions are availible sending telegram to @DJIMegilotbot
+Phttps://fh.dji.com/user-center#/my-organization
+
+
+![My Organization](images/my_organization.jpeg)
+
+
+
+
+
+
+## Features
 
 - ✅ Connects to DJI FlightHub MQTT telemetry stream
 - ✅ Reads offline JSON logs and replays them with accurate timing
