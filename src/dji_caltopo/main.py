@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from mtqq_listener import start_mqtt_listener
 from dji_utils import  extract_drone_name_mapping, extract_drone_info
 from telegram_logger import TelegramMessageManager
+from telegram_command_bot import start_bot, register_callback
 
 
 
@@ -54,6 +55,11 @@ def unsubscribe_from_drone(sn):
     mqtt_client.unsubscribe(topic)
     logger.info(f"🛑 Unsubscribed from topic: {topic}")
 
+def handle_register(sn, name, token):
+    logger.info(f"📥 Register request from Telegram: SN={sn}, Name={name}, Token={token}")
+    subscribe_to_drone(sn)
+    # TODO: save to DB later
+
 
 def handle_drone_message(message, sn_to_drone_name):
     try:
@@ -95,7 +101,11 @@ if __name__ == "__main__":
     logger.info("Running MQTT listener")
     mqtt_client = start_mqtt_listener(q, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_TO_SUBSCRIBE)
 
-    telegram.send_startup()
+    register_callback = handle_register
+    threading.Thread(target=start_bot, daemon=True).start()
+    
+    
+
     try:
         while True:
             time.sleep(10)   # Keep main thread alive
