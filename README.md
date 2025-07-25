@@ -33,11 +33,14 @@ Click Save.
 
 
 
-### Step 2: Access DJI Organization Page
+### Step 2: Get Access token from Caltopo
 
+Navigatge to the administration page of the group, 
+Under Trackable Devices, Create New Access URL, or use existing one. 
+Copy the access token , as this will be used to send data to caltopo
 
-
-
+![Caltopo Trackable Devices Screenshot](images/trackable_devices.png)
+ 
 
 
 
