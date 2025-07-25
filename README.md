@@ -35,9 +35,17 @@ Click Save.
 
 ### Step 2: Get Access token from Caltopo
 
-Navigatge to the administration page of the group, 
-Under Trackable Devices, Create New Access URL, or use existing one. 
-Copy the access token , as this will be used to send data to caltopo
+⚠️ Note: You must have sufficient permissions in the CalTopo group to view or create access tokens.
+
+Navigate to your CalTopo group’s administration page.
+
+Scroll down to the “Trackable Devices” section.
+
+Click “Create New Access URL” (or use an existing one if already available).
+
+Copy the Access Token — you’ll need it to send location data from the drone to CalTopo.
+
+🔒 Keep this token secure — anyone with it can send location updates to your group.
 
 ![Caltopo Trackable Devices Screenshot](images/trackable_devices.png)
  
