@@ -2,13 +2,43 @@
 
 This project ingests drone telemetry data either in **real-time** via an MQTT broker or from **offline simulation logs**, extracts GPS coordinates, and sends location updates to the [CalTopo API](https://caltopo.com/) for live tracking or analysis.
 
-## Features
-Instructions: 
-All the instructions are availible sending telegram to @DJIMegilotbot
-Phttps://fh.dji.com/user-center#/my-organization
+
+## 🛠️ Step-by-Step Setup
+
+### Step 1:  Configure DJI FlightHub
+
+⚠️ Note: You must have sufficient permissions to set the sync settings.
+Open your browser and go to:
+👉 https://fh.dji.com/user-center#/my-organization
+
+On the right side of your organization row, click the gear icon under "Actions" to open Organization Settings.
+
+In the settings panel, find the section titled FlightHub Sync (Beta) on the right.
+
+Click "Edit" next to Telemetry Data.
+
+Fill in the following MQTT details:
+
+MQTT Host: 129.159.135.253
+
+Port: 1883
+
+Username: leave blank
+
+Password: leave blank
+
+Click Save.
+
+⚠️ Note: Username and password are not supported yet—leave them blank.
 
 
-![My Organization](images/my_organization.jpeg)
+
+
+### Step 2: Access DJI Organization Page
+
+
+
+
 
 
 
