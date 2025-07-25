@@ -11,15 +11,11 @@ This project ingests drone telemetry data either in **real-time** via an MQTT br
 Open your browser and go to:
 👉 https://fh.dji.com/user-center#/my-organization
 
-On the right side of your organization row, click the gear icon under "Actions" to open Organization Settings.
+Actions -> Organization Settings (gear icon) -> FlightHub Sync (Beta)
 
-In the settings panel, find the section titled FlightHub Sync (Beta) on the right.
+Click "Edit" next to Telemetry Data and fill in the following MQTT details:
 
-Click "Edit" next to Telemetry Data.
-
-Fill in the following MQTT details:
-
-MQTT Host: 129.159.135.253
+MQTT Host: 129.159.135.253, 
 
 Port: 1883
 
@@ -30,6 +26,9 @@ Password: leave blank
 Click Save.
 
 ⚠️ Note: Username and password are not supported yet—leave them blank.
+
+
+![FlightHub Sync Screenshot](images/dji_sync_screenshot.png)
 
 
 
