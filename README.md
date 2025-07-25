@@ -1,6 +1,16 @@
 # Drone Telemetry to CalTopo
 
-This project ingests drone telemetry data either in **real-time** via an MQTT broker or from **offline simulation logs**, extracts GPS coordinates, and sends location updates to the [CalTopo API](https://caltopo.com/) for live tracking or analysis.
+This project ingests drone telemetry data from [FlightHub 2 - DJI](https://fh.dji.com/) via an MQTT broker, extracts GPS coordinates, and sends location updates to the [CalTopo API](https://caltopo.com/) for live tracking.
+
+No installation is required — a working server is already available. Simply follow the instructions, register your FlightHub account, and provide your CalTopo access token, and the integration will run automatically for seven days. You can register as many times as needed; there is no limit.
+
+🔁 If you want to use multiple CalTopo tokens for the same drone, you'll need to register each one separately.
+
+📝 **Prerequisites**  
+- Access permissions in **DJI FlightHub** to configure telemetry data sharing  
+- Access permissions in **CalTopo** to manage trackable device tokens  
+- The **serial number** of your drone  
+- An active **Telegram account** to complete the registration process via our bot
 
 
 ## 🛠️ Step-by-Step Guide
@@ -47,7 +57,7 @@ Copy the **Access Token** — this will be used to send location data from the d
 ![Caltopo Trackable Devices Screenshot](images/trackable_devices.png)
  
 
-
+### Step 3:  Register your drone using our telegram bot 
 
 
 
@@ -56,7 +66,7 @@ Copy the **Access Token** — this will be used to send location data from the d
 
 ---
 
-
+This project was developed for the **Megilot Search and Rescue (SAR) Unit**, and is openly available for use by any SAR unit worldwide — or by anyone interested in integrating drone telemetry with mapping and navigation software.
 
 
 For **feature requests**, **bug reports**, or **technical assistance**, please contact:
