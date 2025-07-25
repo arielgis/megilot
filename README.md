@@ -3,7 +3,7 @@
 This project ingests drone telemetry data either in **real-time** via an MQTT broker or from **offline simulation logs**, extracts GPS coordinates, and sends location updates to the [CalTopo API](https://caltopo.com/) for live tracking or analysis.
 
 
-## 🛠️ Step-by-Step Setup
+## 🛠️ Step-by-Step Guide
 
 ### Step 1:  Configure DJI FlightHub
 
@@ -13,15 +13,12 @@ Open your browser and go to:
 
 Actions -> Organization Settings (gear icon) -> FlightHub Sync (Beta)
 
-Click "Edit" next to Telemetry Data and fill in the following MQTT details:
+Click **Edit** next to **Telemetry Data** and enter the following:
 
-MQTT Host: 129.159.135.253, 
-
-Port: 1883
-
-Username: leave blank
-
-Password: leave blank
+MQTT Host: 129.159.135.253  
+Port: 1883  
+Username: (leave blank)  
+Password: (leave blank)
 
 Click Save.
 
@@ -43,7 +40,7 @@ Scroll down to the “Trackable Devices” section.
 
 Click “Create New Access URL” (or use an existing one if already available).
 
-Copy the Access Token — you’ll need it to send location data from the drone to CalTopo.
+Copy the **Access Token** — this will be used to send location data from the drone to CalTopo.
 
 🔒 Keep this token secure — anyone with it can send location updates to your group.
 
@@ -55,26 +52,12 @@ Copy the Access Token — you’ll need it to send location data from the drone 
 
 
 
-## Features
 
-- ✅ Connects to DJI FlightHub MQTT telemetry stream
-- ✅ Reads offline JSON logs and replays them with accurate timing
-- ✅ Extracts drone GPS coordinates (latitude, longitude)
-- ✅ Supports multiple drones using serial number (SN) mapping
-- ✅ Sends data to CalTopo using API
-- ✅ Modular design with interchangeable backends
-- ✅ Built-in logging and clean threading
 
 ---
 
-## Project Structure
 
-```bash
-.
-├── main.py                  # Main orchestrator for real-time or offline mode
-├── mqtt_listener.py         # Connects to MQTT broker and pushes messages into a queue
-├── offline_simulator.py     # Replays messages from folder using log.csv
-├── caltopo_api.py           # Sends location data to CalTopo via HTTP API
-├── .env                     # Local environment config (MQTT host, API key, etc.)
-├── requirements.txt         # Python dependencies
-└── README.md
+
+
+For **feature requests**, **bug reports**, or **technical assistance**, please contact:
+👉 dji.caltopo.sync@gmail.com
