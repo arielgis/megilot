@@ -43,6 +43,7 @@ Click Save.
 ### Step 2: Get Access token from Caltopo
 
 ⚠️ Note: You must have sufficient permissions in the CalTopo group to view or create access tokens.
+Only use tokens with limited permissions, and revoke them when they are no longer needed.
 
 Navigate to your CalTopo group’s administration page.
 

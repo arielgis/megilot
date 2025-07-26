@@ -3,13 +3,15 @@ import queue
 import os
 import time
 import logging
-from offline_simulator import simulate_offline_messages
+#from offline_simulator import simulate_offline_messages
 from caltopo_api import send_location_to_caltopo
 from dotenv import load_dotenv
 from mtqq_listener import start_mqtt_listener
-from dji_utils import  extract_drone_name_mapping, extract_drone_info
+from dji_utils import  extract_drone_info
 from telegram_logger import TelegramMessageManager
-from telegram_command_bot import start_bot, register_callback
+from telegram_command_bot import start_bot
+from registration_db import init_db
+
 
 
 
@@ -24,22 +26,15 @@ logger = logging.getLogger(__name__)
 
 
 # --- Configuration ---
+init_db()
 load_dotenv()
-DEFAULT_DELAY = 1.0        # Used if USE_REAL_TIMING is False
-TIME_MULTIPLIER = 0.1      # e.g. 0.5 = 2x faster, 2.0 = 2x slower
 MQTT_BROKER_HOST = os.getenv("MQTT_BROKER_HOST")
 MQTT_BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT"))
 CALTOPO_CONNECT_KEY = os.getenv("CALTOPO_CONNECT_KEY")
 TELEGRAM_TOKEN= os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID= os.getenv("TELEGRAM_CHAT_ID")
-DRONES_SN_LIST = os.getenv("DRONES_SN_LIST", "").split(",")
-DRONES_NAMES_LIST = os.getenv("DRONES_NAMES_LIST", "").split(",")
-assert len(DRONES_SN_LIST) == len(DRONES_NAMES_LIST), "Drones SN and Names lists must have the same length."
-assert len(DRONES_SN_LIST) > 0, "Drones SN list cannot be empty."
 
-MQTT_TOPIC_TO_SUBSCRIBE = [f"thing/product/{sn.strip()}/osd" for sn in DRONES_SN_LIST]
-sn_to_drone_name = extract_drone_name_mapping(DRONES_SN_LIST, DRONES_NAMES_LIST)
-print(sn_to_drone_name)
+#MQTT_TOPIC_TO_SUBSCRIBE = [f"thing/product/{sn.strip()}/osd" for sn in DRONES_SN_LIST]
 
 telegram = TelegramMessageManager(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
 
