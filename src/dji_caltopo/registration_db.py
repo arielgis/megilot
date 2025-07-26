@@ -1,11 +1,11 @@
 import sqlite3
 from datetime import datetime, timedelta
-import os
+#import os
 
-DB_PATH = os.getenv("REGISTRATION_DB_PATH", "drone_registrations.db")
+#DB_PATH = os.getenv("REGISTRATION_DB_PATH", "drone_registrations.db")
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
+def init_db(db_path):
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
 
     c.execute("""
@@ -26,11 +26,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-def insert_registration(sn, name, token, email, removal_code, days_valid=7):
+def insert_registration(db_path, sn, name, token, email, removal_code, days_valid=7):
     now = datetime.utcnow()
     expires_at = now + timedelta(days=days_valid)
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
 
     try:
