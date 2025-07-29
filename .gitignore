@@ -2,5 +2,6 @@
 __pycache__
 *.pyc
 self
+test.py
 
 

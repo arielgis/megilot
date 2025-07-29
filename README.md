@@ -58,13 +58,11 @@ Copy the **Access Token** — this will be used to send location data from the d
 ![Caltopo Trackable Devices Screenshot](images/trackable_devices.png)
  
 
-### Step 3:  Register your drone using our telegram bot 
+### Step 3:  Register your drone through the following link 
 
-### Step 3: Register Your Drone via Telegram Bot
+https://docs.google.com/forms/d/e/1FAIpQLSfWyeEj78CI24RY2gMp73Szecx0p8p6QOLkp2kWIR_OTfFibQ/viewform?usp=dialog
 
-🚧 *Coming soon*
 
-This section will explain how to register your drone using the Telegram bot, including the required command format and necessary details.
 
 In the meantime, feel free to contact us at **dji.caltopo.sync@gmail.com** if you need early access or assistance.
 
