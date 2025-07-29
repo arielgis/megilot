@@ -60,7 +60,9 @@ Copy the **Access Token** — this will be used to send location data from the d
 
 ### Step 3:  Register your drone 
 
-[Register through the following link ](https://docs.google.com/forms/d/e/1FAIpQLSfWyeEj78CI24RY2gMp73Szecx0p8p6QOLkp2kWIR_OTfFibQ/viewform?usp=dialog)
+
+[Register through the following link](https://docs.google.com/forms/d/e/1FAIpQLSfWyeEj78CI24RY2gMp73Szecx0p8p6QOLkp2kWIR_OTfFibQ/viewform?usp=dialog)
+
 
 
 
