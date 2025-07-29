@@ -10,4 +10,6 @@ dependencies:
   - paho-mqtt           # MQTT client library
   - requests            # HTTP requests library
   - python-dotenv       # For reading .env files 
-  
+  - pip:
+    - gspread
+    - oauth2client
