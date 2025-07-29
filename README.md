@@ -58,9 +58,11 @@ Copy the **Access Token** — this will be used to send location data from the d
 ![Caltopo Trackable Devices Screenshot](images/trackable_devices.png)
  
 
-### Step 3:  Register your drone through the following link 
+### Step 3:  Register your drone 
 
-https://docs.google.com/forms/d/e/1FAIpQLSfWyeEj78CI24RY2gMp73Szecx0p8p6QOLkp2kWIR_OTfFibQ/viewform?usp=dialog
+[Register through the following link ](https://docs.google.com/forms/d/e/1FAIpQLSfWyeEj78CI24RY2gMp73Szecx0p8p6QOLkp2kWIR_OTfFibQ/viewform?usp=dialog)
+
+
 
 
 
