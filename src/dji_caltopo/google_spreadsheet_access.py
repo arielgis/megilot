@@ -99,9 +99,9 @@ def get_worksheet_data(key_file, spreadsheet_id, worksheet_name):
             return worksheet    
     return None
 
-def read_data_as_dataframe(key_file, spreadsheet_id, worksheet_name):
+def worksheet_to_dataframe(worksheet):
 
-    worksheet = get_worksheet_data(key_file, spreadsheet_id, worksheet_name)
+    #worksheet = get_worksheet_data(key_file, spreadsheet_id, worksheet_name)
     if worksheet:
             data = read_data(worksheet)
             if data:
@@ -163,7 +163,7 @@ def remove_expired_rows(df, worksheet):
     expired_rows_to_delete = find_expired_rows(df)
     if not expired_rows_to_delete:
         print("No expired rows to delete.")
-        return
+        return False
 
     # Sort row numbers in descending order to avoid index shifting issues
     expired_rows_to_delete.sort(reverse=True)
@@ -174,3 +174,11 @@ def remove_expired_rows(df, worksheet):
             pass # print handled by delete_row_from_sheet
         else:
             print(f"Failed to delete row {row_number}.")
+    return True
+
+def get_worksheet_data_after_filtering(key_file, spreadsheet_id, worksheet_name):
+    worksheet = get_worksheet_data(key_file, spreadsheet_id, worksheet_name)
+    df = worksheet_to_dataframe(worksheet)
+    if remove_expired_rows(df, worksheet):
+        df = worksheet_to_dataframe(worksheet)
+    return df
