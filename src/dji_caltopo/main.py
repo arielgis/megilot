@@ -54,7 +54,7 @@ def init_global_variables():
     MQTT_PORT = int(os.getenv("MQTT_BROKER_PORT"))
     q = queue.Queue()
     MQTT_CLIENT = start_mqtt_listener(q, MQTT_HOST, MQTT_PORT, [])
-    TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+    TELEGRAM_TOKEN = os.getenv("TELEGRAM_LOGGER_BOT_TOKEN")
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
     telegram = TelegramMessageManager(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
 
