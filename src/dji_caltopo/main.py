@@ -9,7 +9,7 @@ from caltopo_api import send_location_to_caltopo
 from telegram_logger import TelegramMessageManager
 from dotenv import load_dotenv
 from mtqq_listener import start_mqtt_listener
-
+from send_mail import send_email
 
 # Global state
 WORKSHEET_NAME = 'Form Responses 1'
@@ -23,6 +23,8 @@ telegram  = None
 last_row_count = 0
 seen_registrations = set()
 initial_load_done = False
+PWD = None
+FROM_MAIL = "dji.caltopo.sync@gmail.com"
 
 
 
@@ -45,8 +47,8 @@ def subscribe_to_drone(sn):
         logger.warning("⚠️ MQTT client not initialized — can't subscribe.")
 
 
-def init_global_variables():
-    global MQTT_HOST, MQTT_PORT, MQTT_CLIENT, DB_PATH, KEY_FILE, SPREADSHEET_ID, q, telegram
+def init_global_variables():    
+    global MQTT_HOST, MQTT_PORT, MQTT_CLIENT, DB_PATH, KEY_FILE, SPREADSHEET_ID, q, telegram, PWD
     load_dotenv()
     KEY_FILE = os.getenv("SERVICE_ACCOUNT_KEY_FILE")
     SPREADSHEET_ID = os.getenv("SPREAD_SHEET_ID")
@@ -57,6 +59,7 @@ def init_global_variables():
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_LOGGER_BOT_TOKEN")
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
     telegram = TelegramMessageManager(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
+    PWD = os.getenv("SMTP_PSWD")
 
 
 
@@ -86,8 +89,12 @@ def handle_single_registration(sn, name, url_access, email, initial_load, new_ac
             if not initial_load:
                 logger.info(f"🆕 New registration detected: {sn} → {url_access}")
                 telegram.send_registration(sn, url_access)
+                subject="New Drone Registration"
+                body_text="Your drone SN XYZ has been registered successfully with PIN 123456."
+                send_email(email, subject, body_text, FROM_MAIL, PWD)
                 # Here you'll add:
                 # - generate_pin_for_sn(sn, url_access)
+                
                 # - send_registration_email(...)
     
 
