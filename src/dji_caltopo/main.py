@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 from mtqq_listener import start_mqtt_listener
 from send_mail import send_email
 
+# TODO: Add expired and valid columns, pin code, and an option to remove the drone from the list.
+
+
+
 # Global state
 WORKSHEET_NAME = 'Form Responses 1'
 MQTT_CLIENT = None
@@ -81,6 +85,8 @@ def handle_single_registration(sn, name, url_access, email, initial_load, new_ac
         registration_key = (sn, url_access)
 
         # Save access mapping
+        assert isinstance(url_access, str), f"url_access is not a string: {url_access}"
+        assert isinstance(name, str), f"name is not a string: {name}"
         new_access_map.setdefault(sn, []).append((url_access, name))
 
         # Handle new registration
@@ -128,11 +134,18 @@ def handle_drone_message(message):
             telegram.send_mqtt_queued("Invalid drone message format or missing data.")
             return
 
-        drone_name, longitude, latitude = result
-        for url, name in ACCESS_URL_BY_DRONE.get(drone_name, []):
+        drone_mappings, longitude, latitude = result  # Expecting a list of (url, name) tuples
+        for url, name in drone_mappings:
             send_location_to_caltopo(url, name, latitude, longitude)
-        telegram.send_validated_coord(drone_name, latitude, longitude)
-        logger.info(f"{drone_name} → Longitude: {longitude}, Latitude: {latitude}")
+
+        # Use the display name of the first mapping for the Telegram message (or modify as needed)
+        if drone_mappings:
+            telegram.send_validated_coord(drone_mappings[0][1], latitude, longitude)
+
+        logger.info(f"{drone_mappings} → Longitude: {longitude}, Latitude: {latitude}")
+
+    except Exception as e:
+        logger.error(f"❌ Error in message processing: {e}")
 
     except Exception as e:
         logger.error(f"❌ Error in message processing: {e}")
