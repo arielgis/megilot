@@ -90,7 +90,7 @@ def handle_single_registration(sn, name, url_access, email, initial_load, new_ac
                 logger.info(f"🆕 New registration detected: {sn} → {url_access}")
                 telegram.send_registration(sn, url_access)
                 subject="New Drone Registration"
-                body_text="Your drone SN XYZ has been registered successfully with PIN 123456."
+                body_text=f"Your drone {sn} has been registered to token {url_access} successfully."
                 send_email(email, subject, body_text, FROM_MAIL, PWD)
                 # Here you'll add:
                 # - generate_pin_for_sn(sn, url_access)

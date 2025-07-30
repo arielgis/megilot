@@ -4,7 +4,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import os
 import datetime
+import logging
 
+logger = logging.getLogger("google_spreadsheet_access")
 load_dotenv()
 SERVICE_ACCOUNT_KEY_FILE = os.getenv("SERVICE_ACCOUNT_KEY_FILE")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
@@ -21,7 +23,7 @@ def authenticate_google_sheets(key_file):
 
         creds = ServiceAccountCredentials.from_json_keyfile_name(key_file, scope)
         client = gspread.authorize(creds)
-        print("Authentication successful!")
+        #print("Authentication successful!")
         return client
     except Exception as e:
         print(f"Authentication failed: {e}")
@@ -32,10 +34,11 @@ def open_spreadsheet_and_worksheet(client, spreadsheet_id, worksheet_name):
         return None, None
     try:
         spreadsheet = client.open_by_key(spreadsheet_id)
-        print(f"Spreadsheet '{spreadsheet_id}' opened successfully.")
+        #print(f"Spreadsheet '{spreadsheet_id}' opened successfully.")
 
         worksheet = spreadsheet.worksheet(worksheet_name)
-        print(f"Worksheet '{worksheet_name}' selected successfully.")
+        logger.info(f"Worksheet '{worksheet_name}' selected successfully.")
+        #print(f"Worksheet '{worksheet_name}' selected successfully.")
         return spreadsheet, worksheet
     except gspread.exceptions.SpreadsheetNotFound:
         print(f"Error: Spreadsheet with ID '{spreadsheet_id}' not found.")
