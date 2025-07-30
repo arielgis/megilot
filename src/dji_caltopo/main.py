@@ -158,6 +158,10 @@ if __name__ == "__main__":
     consumer_thread = threading.Thread(target=message_consumer, args=(q,), daemon=True)
     consumer_thread.start()
 
+    # Start spreadsheet polling thread
+    polling_thread = threading.Thread(target=poll_spreadsheet_loop, daemon=True)
+    polling_thread.start()
+
     # Send startup ping
     telegram.send_startup()
 
