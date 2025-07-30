@@ -142,7 +142,7 @@ def handle_drone_message(message):
         if drone_mappings:
             telegram.send_validated_coord(drone_mappings[0][1], latitude, longitude)
 
-        logger.info(f"{drone_mappings} → Longitude: {longitude}, Latitude: {latitude}")
+        logger.info(f"{drone_mappings[0][1]} → Longitude: {longitude}, Latitude: {latitude}")
 
     except Exception as e:
         logger.error(f"❌ Error in message processing: {e}")
