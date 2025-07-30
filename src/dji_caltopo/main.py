@@ -84,7 +84,8 @@ def handle_single_registration(sn, name, url_access, email, initial_load, new_ac
         if registration_key not in seen_registrations:
             seen_registrations.add(registration_key)
             if not initial_load:
-                print(f"🆕 New registration detected: {sn} → {url_access}")
+                logger.info(f"🆕 New registration detected: {sn} → {url_access}")
+                telegram.send_registration(sn, url_access)
                 # Here you'll add:
                 # - generate_pin_for_sn(sn, url_access)
                 # - send_registration_email(...)
