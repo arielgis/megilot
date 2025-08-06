@@ -73,8 +73,8 @@ def return_data_if_changed():
     registrations = gsa.worksheet_to_dataframe(worksheet)
     duplicated_rows = registrations.duplicated(['Drone Serial Number', 'CalTopo Access URL'])
     if duplicated_rows.any():
-        logger.warning("⚠️ Duplicate registrations found in the spreadsheet. Please check the data.")
-        print(registrations[duplicated_rows])
+        dup_sn = registrations[duplicated_rows].iloc[0]['Drone Serial Number']
+        logger.warning(f"⚠️ Duplicate registrations of {dup_sn} found in the spreadsheet. Please check the data.")
         registrations = registrations.drop_duplicates(['Drone Serial Number', 'CalTopo Access URL'], keep='last')
     #print(registrations.duplicated(['Drone Serial Number', 'CalTopo Access URL']).sum())
    
