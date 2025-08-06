@@ -67,10 +67,17 @@ def init_global_variables():
 
 
 
-def return_date_if_changed():
+def return_data_if_changed():
     global last_row_count
     worksheet = gsa.get_worksheet_data(KEY_FILE, SPREADSHEET_ID, WORKSHEET_NAME)
     registrations = gsa.worksheet_to_dataframe(worksheet)
+    duplicated_rows = registrations.duplicated(['Drone Serial Number', 'CalTopo Access URL'])
+    if duplicated_rows.any():
+        logger.warning("⚠️ Duplicate registrations found in the spreadsheet. Please check the data.")
+        print(registrations[duplicated_rows])
+        registrations = registrations.drop_duplicates(['Drone Serial Number', 'CalTopo Access URL'], keep='last')
+    #print(registrations.duplicated(['Drone Serial Number', 'CalTopo Access URL']).sum())
+   
     current_row_count = len(registrations)
     assert current_row_count >= last_row_count, "Row count decreased, which is unexpected."
     if current_row_count == last_row_count:
@@ -107,7 +114,7 @@ def handle_single_registration(sn, name, url_access, email, initial_load, new_ac
 
 def handle_registrations_from_spreadsheet(initial_load=False):
     global ACCESS_URL_BY_DRONE, seen_registrations
-    registrations = return_date_if_changed()
+    registrations = return_data_if_changed()
     if registrations is None:
         return False
 
