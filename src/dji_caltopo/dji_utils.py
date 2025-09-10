@@ -71,7 +71,8 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
         telegram.send_mqtt_queued(f"Unknown drone SN: {sn}")
         raise ValueError(f"Unknown drone SN: {sn}")
 
-    drone_name = sn_to_drone_name[sn]
+    drone_url_name_list = sn_to_drone_name[sn]
+    drone_name = drone_url_name_list[0][1]
 
     try:
         host_data = data['host']
@@ -95,7 +96,7 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
         return None
     else:
         telegram.send_validated_coord(drone_name, latitude, longitude)
-        return drone_name, longitude, latitude
+        return drone_url_name_list, longitude, latitude
 
 
 def extract_drone_name_mapping(DRONES_SN_LIST, DRONES_NAMES_LIST):
