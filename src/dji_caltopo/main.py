@@ -41,6 +41,20 @@ logging.basicConfig(
 logger = logging.getLogger("main")
 
 
+
+def send_random_locations_to_all_drones():
+    import random
+    k_list = ACCESS_URL_BY_DRONE.keys()
+    for k in k_list:
+        latitude = round(31.8 + random.uniform(-0.5, 0.5),5)
+        longitude = round(35.3 + random.uniform(-0.5, 0.5),5)
+        for (url, name) in ACCESS_URL_BY_DRONE[k]:
+            print(f"Sending random location to {name} at {url}")
+            send_location_to_caltopo(url, name, latitude, longitude)
+
+        
+        
+
 # --- MQTT Drone Subscription ---
 def subscribe_to_drone(sn):
     topic = f"thing/product/{sn}/osd"
@@ -146,8 +160,10 @@ def handle_drone_message(message):
             send_location_to_caltopo(url, name, latitude, longitude)
 
         # Use the display name of the first mapping for the Telegram message (or modify as needed)
-        if drone_mappings:
-            telegram.send_validated_coord(drone_mappings[0][1], latitude, longitude)
+        #if drone_mappings:
+        #    print("im hereeeee")
+        #    print(drone_mappings)
+        #    telegram.send_validated_coord(drone_mappings[0][1], latitude, longitude)
 
         logger.info(f"{drone_mappings[0][1]} → Longitude: {longitude}, Latitude: {latitude}")
 
@@ -192,10 +208,13 @@ if __name__ == "__main__":
     # Send startup ping
     telegram.send_startup()
 
+    #send_random_locations_to_all_drones()
+
     # Heartbeat loop    
     try:
         while True:
             time.sleep(60)
             telegram.send_heartbeat()
+            
     except KeyboardInterrupt:
         logger.info("🛑 Interrupted by user.")
