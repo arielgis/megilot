@@ -5,6 +5,7 @@ CALTOPO_API_BASE_URL = "https://caltopo.com/api/v1/position/report"
 logger = logging.getLogger("caltopo_api")
 
 def send_location_to_caltopo(connect_key, device_id, latitude, longitude):
+    
     """
     Constructs and sends an HTTP GET request to the CalTopo position report API.
     """
@@ -12,6 +13,7 @@ def send_location_to_caltopo(connect_key, device_id, latitude, longitude):
         f"{CALTOPO_API_BASE_URL}/{connect_key}"
         f"?id={device_id}&lat={latitude}&lng={longitude}"
     )
+    print(f"DEBUG Sending url CalTopo API: {url} - should remove this line")
 
     logger.debug(f"Attempting to send location for Device ID '{device_id}' to CalTopo...")
     logger.debug(f"URL: {url}")
