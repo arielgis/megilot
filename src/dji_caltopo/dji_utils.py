@@ -1,4 +1,5 @@
 import logging
+import requests 
 BUFFER_KM = 20  # max distance from Israel borders to consider valid GPS coordinates
 
 def send_telegram_message(bot_token, chat_id, text):
@@ -42,7 +43,7 @@ def validate_coordinates(lat, lon):
     israel_lon_max = 35.9 + lon_buffer_deg
 
     if not (israel_lat_min <= lat <= israel_lat_max and israel_lon_min <= lon <= israel_lon_max):
-        logging.warning(f"⚠️ Coordinates out of Israel + {buffer_km} km buffer – possible spoofing: lat={lat}, lon={lon}")
+        logging.warning(f"⚠️ Coordinates out of Israel + {BUFFER_KM} km buffer – possible spoofing: lat={lat}, lon={lon}")
         return False
 
     return True
