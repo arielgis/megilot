@@ -1,4 +1,5 @@
 import logging
+import requests 
 BUFFER_KM = 20  # max distance from Israel borders to consider valid GPS coordinates
 
 def send_telegram_message(bot_token, chat_id, text):
@@ -42,7 +43,7 @@ def validate_coordinates(lat, lon):
     israel_lon_max = 35.9 + lon_buffer_deg
 
     if not (israel_lat_min <= lat <= israel_lat_max and israel_lon_min <= lon <= israel_lon_max):
-        logging.warning(f"⚠️ Coordinates out of Israel + {buffer_km} km buffer – possible spoofing: lat={lat}, lon={lon}")
+        logging.warning(f"⚠️ Coordinates out of Israel + {BUFFER_KM} km buffer – possible spoofing: lat={lat}, lon={lon}")
         return False
 
     return True
@@ -71,7 +72,8 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
         telegram.send_mqtt_queued(f"Unknown drone SN: {sn}")
         raise ValueError(f"Unknown drone SN: {sn}")
 
-    drone_name = sn_to_drone_name[sn]
+    drone_url_name_list = sn_to_drone_name[sn]
+    drone_name = drone_url_name_list[0][1]
 
     try:
         host_data = data['host']
@@ -95,7 +97,7 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
         return None
     else:
         telegram.send_validated_coord(drone_name, latitude, longitude)
-        return drone_name, longitude, latitude
+        return drone_url_name_list, longitude, latitude
 
 
 def extract_drone_name_mapping(DRONES_SN_LIST, DRONES_NAMES_LIST):
