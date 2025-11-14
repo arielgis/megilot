@@ -3,6 +3,7 @@ import os
 import logging
 import time
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 import google_spreadsheet_access as gsa
 import threading
 from dji_utils import extract_drone_info
@@ -32,6 +33,7 @@ PWD = None
 FROM_MAIL = "dji.caltopo.sync@gmail.com"
 MIN_INTERVAL_PER_TUPLE = 5.0  # seconds
 last_sent_per_tuple = {}      # key: (sn, url_access) -> last send time (epoch seconds)
+WORKER_POOL = None
 
 
 
@@ -79,7 +81,9 @@ def subscribe_to_drone(sn):
 
 
 def init_global_variables():    
-    global MQTT_HOST, MQTT_PORT, MQTT_CLIENT, DB_PATH, KEY_FILE, SPREADSHEET_ID, q, telegram, PWD
+    global MQTT_HOST, MQTT_PORT, MQTT_CLIENT, DB_PATH, KEY_FILE, SPREADSHEET_ID
+    global q, telegram, PWD, WORKER_POOL
+
     load_dotenv()
     KEY_FILE = os.getenv("SERVICE_ACCOUNT_KEY_FILE")
     SPREADSHEET_ID = os.getenv("SPREAD_SHEET_ID")
@@ -91,6 +95,7 @@ def init_global_variables():
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
     telegram = TelegramMessageManager(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
     PWD = os.getenv("SMTP_PSWD")
+    WORKER_POOL = ThreadPoolExecutor(max_workers=15)
 
 
 
@@ -161,14 +166,64 @@ def handle_registrations_from_spreadsheet(initial_load=False):
 
     return True
 
+def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
+                            flighthub_ts, mqtt_received):
+    """
+    Runs in a worker thread:
+    - calls CalTopo
+    - measures delays
+    - logs delay breakdown and warnings
+    """
+    try:
+        worker_start = time.time()
+        req_time = send_location_to_caltopo(url_access, name, latitude, longitude)
+        worker_end = time.time()
+
+        # If send_location_to_caltopo already measured HTTP time and returned it:
+        if req_time is not None:
+            http_delay = req_time
+        else:
+            http_delay = max(0.0, worker_end - worker_start)
+
+        upstream_delay = max(0.0, mqtt_received - flighthub_ts)
+        internal_delay = max(0.0, worker_start - mqtt_received)
+        total_delay = max(0.0, worker_end - flighthub_ts)
+
+        logger.info(
+            f"[DELAY] {name}: upstream={upstream_delay:.3f}s, "
+            f"internal={internal_delay:.3f}s, http={http_delay:.3f}s, "
+            f"total={total_delay:.3f}s, SN={sn}, url_suffix=...{url_access[-4:]}"
+        )
+
+        if total_delay > 30.0:
+            if upstream_delay > 25.0:
+                cause = "UPSTREAM (DJI / FlightHub / MQTT)"
+            elif internal_delay > 3.0:
+                cause = "INTERNAL QUEUE / PROCESSING"
+            elif http_delay > 3.0:
+                cause = "CALTOPO HTTP / NETWORK"
+            else:
+                cause = "MIXED / UNKNOWN"
+
+            logger.warning(
+                f"⚠️ DELAY WARNING for {name}: total={total_delay:.2f}s "
+                f"(upstream={upstream_delay:.2f}s, internal={internal_delay:.2f}s, "
+                f"http={http_delay:.2f}s). Root cause (heuristic): {cause}."
+            )
+
+    except Exception as e:
+        logger.error(
+            f"Error in _send_to_caltopo_worker for {name} (SN={sn}): {e}",
+            exc_info=True
+        )
+
+
 def handle_drone_message(message):
     """
     Process a single DJI MQTT message:
     - Extract drone info
     - Enforce 1 update / 5s per (drone, map) tuple
-    - Send position to CalTopo
-    - Measure delays (upstream / internal / HTTP / total)
-    - Warn if total delay > 30s and guess the root cause
+    - Submit CalTopo sends to worker pool (non-blocking)
     """
     try:
         # 1) Local receive time from MQTT (set in mtqq_listener.py)
@@ -182,7 +237,6 @@ def handle_drone_message(message):
         # 3) Extract drone mappings & coordinates (list of (url_access, name))
         result = extract_drone_info(message, ACCESS_URL_BY_DRONE, telegram)
         if result is None:
-            # extract_drone_info already logs / sends Telegram if needed
             return
 
         drone_mappings, longitude, latitude = result
@@ -197,10 +251,6 @@ def handle_drone_message(message):
                 "No 'sn' in message['data']; rate limiting will be based on URL only."
             )
 
-        # 4) Internal processing start (just before we call CalTopo)
-        api_start = time.time()
-
-        total_http_time = 0.0
         sent_count = 0
 
         for url_access, name in drone_mappings:
@@ -220,52 +270,29 @@ def handle_drone_message(message):
 
             # Update last sent time for this tuple
             last_sent_per_tuple[key] = now
-
-            # Send to CalTopo
-            req_time = send_location_to_caltopo(url_access, name, latitude, longitude)
             sent_count += 1
-            if req_time is not None:
-                total_http_time += req_time
 
-        api_end = time.time()
+            # --- Submit to worker pool instead of sending directly ---
+            if WORKER_POOL is not None:
+                WORKER_POOL.submit(
+                    _send_to_caltopo_worker,
+                    sn,
+                    name,
+                    url_access,
+                    latitude,
+                    longitude,
+                    flighthub_ts,
+                    mqtt_received,
+                )
+            else:
+                logger.error("WORKER_POOL is not initialized; cannot send to CalTopo.")
 
-        # If nothing was sent (all tuples rate-limited), still log delays but HTTP=0
-        if sent_count == 0:
-            http_delay = 0.0
-        else:
-            http_delay = max(0.0, api_end - api_start)
-
-        # 5) Compute delays
-        upstream_delay = max(0.0, mqtt_received - flighthub_ts)   # FlightHub → MQTT → you
-        internal_delay = max(0.0, api_start - mqtt_received)      # queue / Python processing
-        total_delay = max(0.0, api_end - flighthub_ts)            # end-to-end
-
+        # Small summary log per MQTT message
         primary_name = drone_mappings[0][1] if drone_mappings else "UNKNOWN"
-
-        # 6) Info log for every message
         logger.info(
-            f"[DELAY] {primary_name}: upstream={upstream_delay:.3f}s, "
-            f"internal={internal_delay:.3f}s, http={http_delay:.3f}s, "
-            f"total={total_delay:.3f}s, sent={sent_count}, "
+            f"[DISPATCH] {primary_name}: sent_tasks={sent_count}, "
             f"tuples={len(drone_mappings)}"
         )
-
-        # 7) Warning + root-cause guess if total > 30s
-        if total_delay > 30.0:
-            if upstream_delay > 25.0:
-                cause = "UPSTREAM (DJI / FlightHub / MQTT)"
-            elif internal_delay > 3.0:
-                cause = "INTERNAL QUEUE / PROCESSING"
-            elif http_delay > 3.0:
-                cause = "CALTOPO HTTP / NETWORK"
-            else:
-                cause = "MIXED / UNKNOWN"
-
-            logger.warning(
-                f"⚠️ DELAY WARNING for {primary_name}: total={total_delay:.2f}s "
-                f"(upstream={upstream_delay:.2f}s, internal={internal_delay:.2f}s, "
-                f"http={http_delay:.2f}s, sent={sent_count}). Root cause (heuristic): {cause}."
-            )
 
     except Exception as e:
         logger.error(f"Error in handle_drone_message: {e}", exc_info=True)
