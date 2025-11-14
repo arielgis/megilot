@@ -31,6 +31,7 @@ def start_mqtt_listener(queue, host, port, topic_list):
             logger.warning("Received invalid JSON message")
         except Exception as e:
             logger.error(f"Unexpected error while handling message: {e}")
+        logger.info(f"DEBUG_345_remove: Incoming on topic {msg.topic}")
 
     client = mqtt.Client()
     client.on_connect = on_connect
