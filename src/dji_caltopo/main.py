@@ -150,30 +150,44 @@ def handle_registrations_from_spreadsheet(initial_load=False):
 
 def handle_drone_message(message):
     try:
+        msg_ts = message.get("_mqtt_received_time", None)
         result = extract_drone_info(message, ACCESS_URL_BY_DRONE, telegram)
         if result is None:
-            telegram.send_mqtt_queued("Invalid drone message format or missing data.")
             return
 
-        drone_mappings, longitude, latitude = result  # Expecting a list of (url, name) tuples
+        drone_mappings, longitude, latitude = result
+
+        # 🟦 Time until API start
+        api_start = time.time()
+
+        per_request_times = []
+
         for url, name in drone_mappings:
-            send_location_to_caltopo(url, name, latitude, longitude)
+            req_time = send_location_to_caltopo(url, name, latitude, longitude)
+            if req_time is not None:
+                per_request_times.append(req_time)
 
-        # Use the display name of the first mapping for the Telegram message (or modify as needed)
-        #if drone_mappings:
-        #    print("im hereeeee")
-        #    print(drone_mappings)
-        #    telegram.send_validated_coord(drone_mappings[0][1], latitude, longitude)
+        api_end = time.time()
 
-        logger.info(f"{drone_mappings[0][1]} → Longitude: {longitude}, Latitude: {latitude}")
+        # If no timing, skip final log
+        if msg_ts is None:
+            return
+
+        # FINAL COMPUTED TIMES
+        t_received = api_start - msg_ts
+        t_sent = sum(per_request_times) if per_request_times else 0
+        t_returned = api_end - msg_ts
+
+        # 🟥 EXACT LOG LINE YOU ASKED FOR:
+        logger.info(
+            f"Message from {drone_mappings[0][1]} received in {t_received:.3f}s, "
+            f"sent in {t_sent:.3f}s, returned in {t_returned:.3f}s"
+        )
 
     except Exception as e:
-        logger.error(f"❌ Error in message processing: {e}")
+        logger.error(f"Error in handle_drone_message: {e}")
 
-    except Exception as e:
-        logger.error(f"❌ Error in message processing: {e}")
-
-
+        
 def message_consumer(q):
     while True:
         message = q.get()
