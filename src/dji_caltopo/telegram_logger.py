@@ -48,12 +48,19 @@ class TelegramMessageManager:
             self._send("🟢 Code restarted.")
             self.last_sent["startup"] = time.time()
 
-    def send_validated_coord(self, drone_name, lat, lon):
-        if time.time() - self.last_sent["validated_coord"] > 180:  # 3 minutes
-            self._send(f"📍 GPS Position of <b>{drone_name}</b>: sent to Caltopo\n"
-                       f"lat={lat:.5f}, lon={lon:.5f}\n"
-                       f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}")
-            self.last_sent["validated_coord"] = time.time()
+def send_validated_coord(self, drone_name, lat, lon, total_delay=None):
+    if time.time() - self.last_sent["validated_coord"] > 180:  # 3 minutes
+        # Optional extra line for delay
+        delay_line = ""
+        if total_delay is not None:
+            delay_line = f"\nTotal processing time: {total_delay:.1f}s"
+
+        self._send(
+            f"📍 GPS Position of <b>{drone_name}</b>: sent to Caltopo\n"
+            f"lat={lat:.5f}, lon={lon:.5f}\n"
+            f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}{delay_line}"
+        )
+        self.last_sent["validated_coord"] = time.time()
 
     def send_mqtt_queued(self, message):
         if time.time() - self.last_sent["mqtt_queue"] > 600:  # 10 minutes

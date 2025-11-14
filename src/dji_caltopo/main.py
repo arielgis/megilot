@@ -211,12 +211,22 @@ def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
                 f"http={http_delay:.2f}s). Root cause (heuristic): {cause}."
             )
 
+        # Send regular Telegram location message, enriched with total delay
+        try:
+            telegram.send_validated_coord(
+                name,
+                latitude,
+                longitude,
+                total_delay=total_delay,
+            )
+        except Exception as te:
+            logger.error(f"Failed to send Telegram validated coord: {te}")
+
     except Exception as e:
         logger.error(
             f"Error in _send_to_caltopo_worker for {name} (SN={sn}): {e}",
             exc_info=True
         )
-
 
 def handle_drone_message(message):
     """

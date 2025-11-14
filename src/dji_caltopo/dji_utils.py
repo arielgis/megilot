@@ -93,7 +93,6 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
         logging.error("Missing key 'latitude' in message['data']['host']")
         return None
     if not validate_coordinates(latitude, longitude):
-        telegram.send_mqtt_queued(f"Invalid coordinates for drone '{drone_name}': latitude={latitude}, longitude={longitude}")
         return None
     else:
         telegram.send_validated_coord(drone_name, latitude, longitude)
