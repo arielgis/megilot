@@ -62,27 +62,27 @@ def send_validated_coord(self, drone_name, lat, lon, total_delay=None):
         )
         self.last_sent["validated_coord"] = time.time()
 
-    def send_mqtt_queued(self, message):
-        if time.time() - self.last_sent["mqtt_queue"] > 600:  # 10 minutes
-            self._send(f"📦 Recieved new message : {message}")
-            self.last_sent["mqtt_queue"] = time.time()
+def send_mqtt_queued(self, message):
+    if time.time() - self.last_sent["mqtt_queue"] > 600:  # 10 minutes
+        self._send(f"📦 Recieved new message : {message}")
+        self.last_sent["mqtt_queue"] = time.time()
 
-    def send_heartbeat(self):
-        if time.time() - self.last_sent["heartbeat"] > 21600:  # 6 hours
-            message = "✅ Live and running (heartbeat) \n" #+ random.choice(AI_MESSAGES_HE)
-            self._send(message)
-            self.last_sent["heartbeat"] = time.time()
-
-
-    def send_registration(self, sn, url_access):
-        # Send immediately without throttling
-        sn_short = f"***{sn[-3:]}" if len(sn) > 3 else sn
-        url_short = f"***{url_access[-3:]}" if len(url_access) > 3 else url_access
-
-        message = (
-            "🆕 New drone registration\n"
-            f"SN: {sn_short}\n"
-            f"Key: {url_short}"
-        )
+def send_heartbeat(self):
+    if time.time() - self.last_sent["heartbeat"] > 21600:  # 6 hours
+        message = "✅ Live and running (heartbeat) \n" #+ random.choice(AI_MESSAGES_HE)
         self._send(message)
+        self.last_sent["heartbeat"] = time.time()
+
+
+def send_registration(self, sn, url_access):
+    # Send immediately without throttling
+    sn_short = f"***{sn[-3:]}" if len(sn) > 3 else sn
+    url_short = f"***{url_access[-3:]}" if len(url_access) > 3 else url_access
+
+    message = (
+        "🆕 New drone registration\n"
+        f"SN: {sn_short}\n"
+        f"Key: {url_short}"
+    )
+    self._send(message)
             
