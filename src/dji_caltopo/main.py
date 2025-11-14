@@ -150,19 +150,17 @@ def handle_registrations_from_spreadsheet(initial_load=False):
     return True
 
 def handle_drone_message(message):
-        # -----------------------------------------------
-    # 🔍 TEMP DEBUG: Print activation_time candidates
+
     # -----------------------------------------------
-    if "activation_time" in message:
-        logger.info(f"activation_time (top-level): {message['activation_time']}")
-    elif "general" in message and isinstance(message["general"], dict) and "activation_time" in message["general"]:
-        logger.info(f"activation_time (general): {message['general']['activation_time']}")
+    # 🔍 TEMP DEBUG: print timestamp and its type
+    # -----------------------------------------------
+    if "timestamp" in message:
+        ts = message["timestamp"]
+        logger.info(f"📡 FlightHub timestamp raw: {ts}  (type={type(ts)})")
     else:
-        logger.info(
-            "activation_time not found. Top-level keys: %s",
-            list(message.keys())
-        )
+        logger.info(f"📡 timestamp NOT FOUND. Top-level keys: {list(message.keys())}")
     # -----------------------------------------------
+
 
 
     try:
