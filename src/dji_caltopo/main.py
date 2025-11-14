@@ -157,7 +157,6 @@ def handle_drone_message(message):
 
         drone_mappings, longitude, latitude = result
 
-        # 🟦 Time until API start
         api_start = time.time()
 
         per_request_times = []
@@ -169,25 +168,30 @@ def handle_drone_message(message):
 
         api_end = time.time()
 
-        # If no timing, skip final log
         if msg_ts is None:
             return
 
-        # FINAL COMPUTED TIMES
         t_received = api_start - msg_ts
         t_sent = sum(per_request_times) if per_request_times else 0
-        t_returned = api_end - msg_ts
+        t_returned = api_end - msg_ts   # TOTAL END-TO-END TIME
 
-        # 🟥 EXACT LOG LINE YOU ASKED FOR:
+        # 🟥 EXACT LOG LINE YOU REQUESTED:
         logger.info(
             f"Message from {drone_mappings[0][1]} received in {t_received:.3f}s, "
             f"sent in {t_sent:.3f}s, returned in {t_returned:.3f}s"
         )
 
+        # 🟧 WARNING IF TOTAL > 30 SECONDS
+        if t_returned > 30:
+            logger.warning(
+                f"⚠️ DELAY WARNING: Message from {drone_mappings[0][1]} "
+                f"took {t_returned:.2f}s end-to-end (MQTT → CalTopo)."
+            )
+
     except Exception as e:
         logger.error(f"Error in handle_drone_message: {e}")
 
-        
+
 def message_consumer(q):
     while True:
         message = q.get()
