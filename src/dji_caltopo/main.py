@@ -2,6 +2,7 @@ import queue
 import os
 import logging
 import time
+from datetime import datetime
 import google_spreadsheet_access as gsa
 import threading
 from dji_utils import extract_drone_info
@@ -149,6 +150,21 @@ def handle_registrations_from_spreadsheet(initial_load=False):
     return True
 
 def handle_drone_message(message):
+        # -----------------------------------------------
+    # 🔍 TEMP DEBUG: Print activation_time candidates
+    # -----------------------------------------------
+    if "activation_time" in message:
+        logger.info(f"activation_time (top-level): {message['activation_time']}")
+    elif "general" in message and isinstance(message["general"], dict) and "activation_time" in message["general"]:
+        logger.info(f"activation_time (general): {message['general']['activation_time']}")
+    else:
+        logger.info(
+            "activation_time not found. Top-level keys: %s",
+            list(message.keys())
+        )
+    # -----------------------------------------------
+
+
     try:
         msg_ts = message.get("_mqtt_received_time", None)
         result = extract_drone_info(message, ACCESS_URL_BY_DRONE, telegram)

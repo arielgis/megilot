@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import paho.mqtt.client as mqtt
 
@@ -23,7 +24,7 @@ def start_mqtt_listener(queue, host, port, topic_list):
         try:
             payload_str = msg.payload.decode('utf-8')
             data = json.loads(payload_str)
-            #print(data["sn"])
+            data["_mqtt_received_time"] = time.time()
             queue.put(data)
             logger.info(f"Incoming message from topic '{msg.topic}'")
         except json.JSONDecodeError:
