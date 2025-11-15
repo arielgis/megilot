@@ -61,7 +61,7 @@ class TelegramMessageManager:
                 f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}{delay_line}"
                 
             )
-            print(f"DEBUG: {delay_line}")
+           # print(f"DEBUG: {delay_line}")
             self.last_sent["validated_coord"] = time.time()
 
     def send_mqtt_queued(self, message):

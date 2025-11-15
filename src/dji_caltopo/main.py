@@ -188,7 +188,7 @@ def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
         upstream_delay = max(0.0, mqtt_received - flighthub_ts)
         internal_delay = max(0.0, worker_start - mqtt_received)
         total_delay = max(0.0, worker_end - flighthub_ts)
-        print(f"delete:  mqtt_received={mqtt_received}, flighthub_ts={flighthub_ts}, worker_start={worker_start}, worker_end={worker_end}")
+        #print(f"delete:  mqtt_received={mqtt_received}, flighthub_ts={flighthub_ts}, worker_start={worker_start}, worker_end={worker_end}")
         #", flighthub_ts, worker_end, worker_start:", mqtt_received, flighthub_ts, worker_end, worker_start)
 
         logger.info(
@@ -214,7 +214,7 @@ def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
             )
 
         # Send regular Telegram location message, enriched with total delay
-        print("delete: total_delay:", total_delay)
+       # print("delete: total_delay:", total_delay)
         try:
             telegram.send_validated_coord(
                 name,

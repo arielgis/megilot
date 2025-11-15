@@ -95,7 +95,6 @@ def extract_drone_info(message, sn_to_drone_name, telegram):
     if not validate_coordinates(latitude, longitude):
         return None
     else:
-        telegram.send_validated_coord(drone_name, latitude, longitude)
         return drone_url_name_list, longitude, latitude
 
 
