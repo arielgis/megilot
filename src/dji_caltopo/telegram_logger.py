@@ -53,7 +53,7 @@ class TelegramMessageManager:
             # Optional extra line for delay
             delay_line = ""
             if total_delay is not None:
-                delay_line = f"\nTotal processing time: {total_delay:.1f}s"
+                delay_line = f"\nDelay time: {total_delay:.1f}s"
 
             self._send(
                 f"📍 GPS Position of <b>{drone_name}</b>: sent to Caltopo\n"
