@@ -188,7 +188,8 @@ def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
         upstream_delay = max(0.0, mqtt_received - flighthub_ts)
         internal_delay = max(0.0, worker_start - mqtt_received)
         total_delay = max(0.0, worker_end - flighthub_ts)
-        print("delete: total_delay:", mqtt_received, flighthub_ts, worker_end, worker_start)
+        print(f"delete:  mqtt_received={mqtt_received}, flighthub_ts={flighthub_ts}, worker_start={worker_start}, worker_end={worker_end}")
+        #", flighthub_ts, worker_end, worker_start:", mqtt_received, flighthub_ts, worker_end, worker_start)
 
         logger.info(
             f"[DELAY] {name}: upstream={upstream_delay:.3f}s, "
