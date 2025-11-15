@@ -59,6 +59,7 @@ class TelegramMessageManager:
                 f"📍 GPS Position of <b>{drone_name}</b>: sent to Caltopo\n"
                 f"lat={lat:.5f}, lon={lon:.5f}\n"
                 f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}{delay_line}"
+                print(f"DEBUG: {delay_line}")
             )
             self.last_sent["validated_coord"] = time.time()
 

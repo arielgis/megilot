@@ -212,6 +212,7 @@ def _send_to_caltopo_worker(sn, name, url_access, latitude, longitude,
             )
 
         # Send regular Telegram location message, enriched with total delay
+        print("delete: total_delay:", total_delay)
         try:
             telegram.send_validated_coord(
                 name,
