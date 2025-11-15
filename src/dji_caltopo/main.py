@@ -6,7 +6,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import google_spreadsheet_access as gsa
 import threading
-from dji_utils import extract_drone_info
+from dji_utils import extract_drone_info, extract_flighthub_timestamp_seconds
 from caltopo_api import send_location_to_caltopo
 from telegram_logger import TelegramMessageManager
 from dotenv import load_dotenv
@@ -45,15 +45,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("main")
 
-def _extract_flighthub_timestamp_seconds(message, fallback_time: float) -> float:
-    """
-    Convert FlightHub timestamp (ms since epoch) to seconds.
-    If missing or invalid, fall back to local receive time.
-    """
-    try:
-        return message["timestamp"] / 1000.0
-    except Exception:
-        return fallback_time
+
 
 
 
@@ -243,7 +235,7 @@ def handle_drone_message(message):
         mqtt_received = message.get("_mqtt_received_time", time.time())
 
         # 2) FlightHub timestamp (ms → seconds) from top-level 'timestamp'
-        flighthub_ts = _extract_flighthub_timestamp_seconds(
+        flighthub_ts = extract_flighthub_timestamp_seconds(
             message, fallback_time=mqtt_received
         )
 

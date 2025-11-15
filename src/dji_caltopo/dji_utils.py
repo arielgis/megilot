@@ -1,5 +1,6 @@
 import logging
-import requests 
+import requests
+from datetime import datetime, timezone, timedelta 
 BUFFER_KM = 20  # max distance from Israel borders to consider valid GPS coordinates
 
 def send_telegram_message(bot_token, chat_id, text):
@@ -107,5 +108,27 @@ def extract_drone_name_mapping(DRONES_SN_LIST, DRONES_NAMES_LIST):
         assert name, "Drone name cannot be empty."
         sn_to_drone_name[sn] = name
     return sn_to_drone_name
+
+
+def extract_flighthub_timestamp_seconds(message, fallback_time: float) -> float:
+    """
+    Convert FlightHub timestamp (ms since epoch, DJI UTC+2) to seconds in real UTC.
+    If missing or invalid, fall back to local receive time (UTC).
+    """
+    try:
+        # DJI gives epoch milliseconds
+        raw_ts_ms = message["timestamp"]
+        raw_ts_sec = raw_ts_ms / 1000.0
+
+        # Convert DJI UTC+2 → UTC
+        flighthub_utc = datetime.fromtimestamp(
+            raw_ts_sec,
+            timezone(timedelta(hours=2))   # DJI timestamp is UTC+2
+        ).astimezone(timezone.utc).timestamp()
+
+        return flighthub_utc
+
+    except Exception:
+        return fallback_time
     
 
